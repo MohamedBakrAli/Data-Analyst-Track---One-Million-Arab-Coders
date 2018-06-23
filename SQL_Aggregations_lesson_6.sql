@@ -235,7 +235,7 @@ ORDER BY cnt DESC
 LIMIT 1;
 
 						--Quiz: DATE functions--
-					   --------------------
+					      --------------------
 -- prob 1
 SELECT DATE_TRUNC('year', occurred_at) year_date, SUM(total_amt_usd)
 FROM orders
@@ -270,3 +270,41 @@ WHERE a.name = 'Walmart'
 GROUP BY 1
 ORDER BY 2 DESC
 LIMIT 1;
+
+							--Quiz: CASE--
+					      --------------------
+-- prob 1
+SELECT a.name, SUM(total_amt_usd) total_spent,
+CASE WHEN SUM(total_amt_usd) > 200000 THEN 'greater than 200,000'
+WHEN SUM(total_amt_usd) > 100000 THEN 'between 200,000 and 100,000' ELSE 'under 100,000' END AS level
+FROM orders o JOIN accounts a ON o.account_id = a.id
+GROUP BY total_spent
+ORDER BY 2 DESC;
+
+-- prob 2 
+SELECT a.name, SUM(total_amt_usd) total_spent,
+CASE WHEN SUM(total_amt_usd) > 200000 THEN 'greater than 200,000'
+WHEN SUM(total_amt_usd) > 100000 THEN 'between 200,000 and 100,000' ELSE 'under 100,000' END AS level
+FROM orders o JOIN accounts a ON o.account_id = a.id
+WHERE DATE_PART('year', o.occurred_at) = 2016 OR DATE_PART('year', o.occurred_at) = 2017
+GROUP BY total_spent
+ORDER BY total DESC;
+
+-- prob 3
+SELECT s.id, s.name, COUNT(*) order_cnt,
+CASE WHEN COUNT(*) > 200 THEN 'top'
+ELSE 'not' END AS level
+FROM accounts a JOIN sales_reps as s ON a.sales_rep_id = s.id JOIN orders o ON a.id = o.account_id
+GROUP BY s.id, s.name
+ORDER BY order_cnt DESC;
+
+-- prob 4
+SELECT s.id, s.name, COUNT(*) order_cnt, SUM(o.total_amt_usd) Total,
+CASE WHEN COUNT(*) > 200 OR SUM(o.total_amt_usd) > 750000 THEN 'top'
+WHEN COUNT(*) > 150 OR SUM(o.total_amt_usd) > 500000 THEN 'middle'
+ELSE 'not' END AS level
+FROM accounts a JOIN sales_reps as s ON a.sales_rep_id = s.id JOIN orders o ON a.id = o.account_id
+GROUP BY s.id, s.name
+ORDER BY Total DESC;
+
+	
